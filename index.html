@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Canton Quiz — Build (Light Yellow Theme)</title>
+  <style>
+    :root{
+      --bg: #fff9c4; /* light yellow */
+      --card: #ffffff;
+      --accent1: #ff8a65; /* coral */
+      --accent2: #4fc3f7; /* sky */
+      --accent3: #aed581; /* green */
+      --text: #222;
+      --muted: #666;
+      --radius: 14px;
+      --glow: 0 8px 20px rgba(34,34,34,0.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;background:linear-gradient(180deg,var(--bg),#fffef6);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,'Helvetica Neue',Arial; color:var(--text);display:flex;align-items:center;justify-content:center;padding:32px
+    }
+    .wrap{width:100%;max-width:900px}
+
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:var(--glow)}
+    .title{line-height:1}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:4px 0 0;color:var(--muted)}
+
+    .card{background:var(--card);border-radius:var(--radius);padding:22px;box-shadow:var(--glow);}
+
+    .question-row{display:flex;align-items:flex-start;gap:18px}
+    .qnum{min-width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,var(--accent3),#dcedc8);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .qtxt{flex:1}
+    .question{font-size:18px;margin:0 0 12px}
+
+    .options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .opt{padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);cursor:pointer;background:linear-gradient(180deg,#fff,#fbfbff);transition:transform .12s,box-shadow .12s}
+    .opt:hover{transform:translateY(-4px);box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+    .opt.selected{outline:3px solid rgba(79,195,247,0.18)}
+    .opt.correct{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-color:rgba(160,210,130,0.6)}
+    .opt.wrong{background:linear-gradient(135deg,#ffebee,#ffcdd2);border-color:rgba(255,138,101,0.4)}
+
+    .controls{display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:12px}
+    .btn{background:linear-gradient(90deg,var(--accent2),var(--accent1));color:white;padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;box-shadow:0 6px 18px rgba(79,195,247,0.18)}
+    .btn.ghost{background:transparent;color:var(--text);border:1px solid rgba(0,0,0,0.06);box-shadow:none}
+
+    .progress{height:10px;background:rgba(0,0,0,0.06);border-radius:999px;overflow:hidden;margin-top:18px}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent1),var(--accent2));width:0%}
+
+    .result{padding:18px;border-radius:12px;text-align:center}
+    .big{font-size:36px;font-weight:800;margin:8px 0}
+    .small{color:var(--muted)}
+
+    footer{margin-top:12px;text-align:center;color:var(--muted);font-size:13px}
+
+    @media (max-width:640px){.options{grid-template-columns:1fr}.question-row{flex-direction:column}.logo{width:56px;height:56px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">CN</div>
+      <div class="title">
+        <h1>Canton — Build: Quick Quiz</h1>
+        <p class="lead">Test your knowledge about Canton Network’s "Build" offering — colorful light yellow theme.</p>
+      </div>
+    </header>
+
+    <main class="card" id="quizCard">
+      <div class="question-row">
+        <div class="qnum" id="qNum">1</div>
+        <div class="qtxt">
+          <h2 class="question" id="question">Loading...</h2>
+          <div class="options" id="options"></div>
+        </div>
+      </div>
+
+      <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+
+      <div class="controls">
+        <button class="btn ghost" id="prevBtn">Previous</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="checkBtn">Check Answer</button>
+          <button class="btn" id="nextBtn">Next</button>
+        </div>
+      </div>
+
+      <div id="resultWrap" style="display:none;margin-top:18px"></div>
+    </main>
+
+    <footer>
+      <small>Project: <strong>Canton</strong> • Theme: Light Yellow • Generated: interactive index.html</small>
+    </footer>
+  </div>
+
+  <script>
+    // Questions array (10 questions). Each item: {q, options:[], correct: index}
+    const questions = [
+      {
+        q: "What is the primary goal of the 'Build' offering on the Canton Network?",
+        options: [
+          "To host decentralized social media applications",
+          "To enable creation and tokenization of real‑world assets with privacy and control",
+          "To provide consumer mobile wallets",
+          "To offer gaming infrastructure"
+        ],
+        correct: 1
+      },
+      {
+        q: "Which of the following is not explicitly mentioned as a capability under the 'Build' section?",
+        options:["Asset tokenization","Custody and wallets","Collateral mobility","Decentralized identity marketplace"],
+        correct:3
+      },
+      {
+        q: "Developers can create private blockchains and apps on Canton while retaining what important feature?",
+        options:["Zero transaction fees","Full interoperability across the network","Immutable governance by a central authority","Anonymous voting rights"],
+        correct:1
+      },
+      {
+        q: "What does Canton automate on‑chain to help with compliance?",
+        options:["Smart contract auditing","Gas fee optimization","AML, KYC, and data privacy using verifiable credentials","Token price prediction"],
+        correct:2
+      },
+      {
+        q: "The 'Build' page mentions 24/7 on‑chain financing. What is one of its touted benefits?",
+        options:["It allows loans only during business hours","It gives access to instant liquidity even during weekends","It requires manual approval by an oracle","It restricts margin trading"],
+        correct:1
+      },
+      {
+        q: "Under 'Collateral mobility,' Canton lets tokenized assets be used as collateral with which property?",
+        options:["Only on the same chain","Only under public scrutiny","Bilaterally or on exchange across crypto and traditional markets","Only after a 30‑day waiting period"],
+        correct:2
+      },
+      {
+        q: "For on‑chain payments, Canton offers configurable 'need to know' privacy. What does that imply?",
+        options:["All transactions are publicly visible","All transaction data is encrypted and nobody can see anything","The sender can specify who is allowed to view payment details","Payments must pass through a centralized server"],
+        correct:2
+      },
+      {
+        q: "Which of the following is not a use case mentioned on the 'Build' page?",
+        options:["Crypto derivatives","24x7 on‑chain financing","Stablecoin payments","Decentralized social networking"],
+        correct:3
+      },
+      {
+        q: "What module does Canton provide to help developers go to market faster?",
+        options:["A governance token issuance module","A pre‑built asset tokenization module","A video streaming module","A decentralized VR environment module"],
+        correct:1
+      },
+      {
+        q: "Which of the following quotes is used on the page to highlight user confidence in Canton?",
+        options:[
+          "We love Canton’s fast‑food approach to DeFi.",
+          "One of the Holy Grails … ability to move between cash and collateral instantly.",
+          "Canton is purely an academic experiment.",
+          "Privacy isn’t necessary in financial markets."
+        ],
+        correct:1
+      }
+    ];
+
+    // App state
+    let current = 0;
+    const answers = new Array(questions.length).fill(null);
+
+    // Elements
+    const qNumEl = document.getElementById('qNum');
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const progBar = document.getElementById('prog');
+    const resultWrap = document.getElementById('resultWrap');
+
+    function render(){
+      const it = questions[current];
+      qNumEl.textContent = (current+1);
+      questionEl.textContent = it.q;
+      optionsEl.innerHTML = '';
+      it.options.forEach((opt, idx)=>{
+        const div = document.createElement('div');
+        div.className = 'opt';
+        div.tabIndex = 0;
+        div.dataset.idx = idx;
+        div.innerHTML = `<div>${opt}</div>`;
+        if(answers[current] === idx) div.classList.add('selected');
+        div.addEventListener('click', ()=> selectOption(idx));
+        div.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') selectOption(idx)});
+        optionsEl.appendChild(div);
+      });
+
+      // controls
+      prevBtn.disabled = current === 0;
+      nextBtn.textContent = (current === questions.length-1) ? 'Finish' : 'Next';
+      progBar.style.width = Math.round(((current)/questions.length)*100) + '%';
+
+      // hide result until finished
+      resultWrap.style.display = 'none';
+    }
+
+    function selectOption(idx){
+      answers[current] = idx;
+      // mark selected
+      [...optionsEl.children].forEach((c)=> c.classList.remove('selected'));
+      optionsEl.children[idx].classList.add('selected');
+    }
+
+    prevBtn.addEventListener('click', ()=>{ if(current>0){ current--; render(); }});
+    nextBtn.addEventListener('click', ()=>{
+      if(current < questions.length-1){ current++; render(); }
+      else finishQuiz();
+    });
+
+    checkBtn.addEventListener('click', ()=>{
+      // reveal which option is correct/wrong for current
+      const correct = questions[current].correct;
+      [...optionsEl.children].forEach((el)=> el.classList.remove('correct','wrong'));
+      [...optionsEl.children].forEach((el, i)=>{
+        if(i===correct) el.classList.add('correct');
+        if(answers[current] !== null && i===answers[current] && answers[current]!==correct) el.classList.add('wrong');
+      });
+    });
+
+    function finishQuiz(){
+      // compute score
+      let score = 0;
+      questions.forEach((q,i)=>{ if(answers[i] === q.correct) score++; });
+      const percent = Math.round((score/questions.length)*100);
+
+      // show result card
+      resultWrap.style.display = 'block';
+      resultWrap.innerHTML = `
+        <div class="card result">
+          <div class="small">You scored</div>
+          <div class="big">${score} / ${questions.length}</div>
+          <div class="small">${percent}%</div>
+          <div style="margin-top:12px"> 
+            <button class="btn" id="retake">Retake Quiz</button>
+            <button class="btn ghost" id="review">Review Answers</button>
+          </div>
+        </div>
+      `;
+
+      // progress full
+      progBar.style.width = '100%';
+
+      // hook buttons
+      document.getElementById('retake').addEventListener('click', ()=>{
+        current = 0; answers.fill(null); render(); window.scrollTo({top:0,behavior:'smooth'});
+      });
+      document.getElementById('review').addEventListener('click', ()=>{
+        // show correct/wrong for each question in sequence
+        current = 0; render(); showAllAnswers();
+      });
+    }
+
+    function showAllAnswers(){
+      // mark correct/wrong for current and move next until end
+      const correct = questions[current].correct;
+      [...optionsEl.children].forEach((el)=> el.classList.remove('correct','wrong'));
+      [...optionsEl.children].forEach((el, i)=>{
+        if(i===correct) el.classList.add('correct');
+        if(answers[current] !== null && i===answers[current] && answers[current]!==correct) el.classList.add('wrong');
+      });
+
+      // move pointer but do not finish
+      if(current < questions.length-1){
+        const nxt = document.createElement('div');
+        nxt.style.marginTop = '12px';
+        nxt.innerHTML = `<button class="btn ghost" id="revNext">Next Review</button>`;
+        resultWrap.appendChild(nxt);
+        document.getElementById('revNext').addEventListener('click', ()=>{
+          current++; render(); showAllAnswers();
+        });
+      }
+    }
+
+    // initial render
+    render();
+
+  </script>
+</body>
+</html>
